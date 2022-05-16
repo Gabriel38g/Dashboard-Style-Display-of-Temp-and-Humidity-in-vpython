@@ -2,13 +2,14 @@ from vpython import *
 import numpy as np
 import time
 import serial
-scene= canvas(width=900, height=500, title='Meter Store')
-arduinoData=serial.Serial('/dev/ttyACM0', 115200) ##Change to port on your computer!
+scene= canvas(width=900, height=500, title='Meter Store') ##Adjust to height and width for your browser/monitor
+arduinoData=serial.Serial('/dev/ttyACM0', 115200) ## Change to Arduino port on your computer!!!
 time.sleep(1)
 
 tempaxle=(-2.5)
 voltaxle=2.5
 humidaxle=(0)
+lblypos=(1.25)
 
 arrowL=1
 arrowT=.02
@@ -60,8 +61,8 @@ for newAngle in np.linspace(0, 2*np.pi, 61):
     humidballarray.append(x)
 sleep(5)
 
-humidballscount=x
-
+humidballscount=x #count of balls in humidex circle to use later.
+print(humidballscount)
 x =0
 
 voltballarray= [x]
@@ -80,6 +81,10 @@ for newAngle in np.linspace(0, 1*np.pi, 31):
     voltballarray.append(x)
 sleep(5)
 
+#Various labels for the Dashboard, CHANGE FONT to one you have installed on your computer!!
+toplbltemp = label(pos=vector(tempaxle, lblypos, 0), text='Temperature', font='Loma', box=False,border=0, height=20, color=vector(1,0,0))
+toplblhumid = label(pos=vector(humidaxle, lblypos, 0), text='Humidity', font='Loma', box=False, border=0, height=20, color=vector(0,0.5,3))
+toplblvolts = label(pos=vector(voltaxle, lblypos, 0), text='Voltage', font='Loma', box=False, border=0, height=20, color=vector(1,1,0))
 slab=label(pos=tempballarray[0].pos, text='30')
 olab=label(pos=tempballarray[x-1].pos, text='0')
 x=0
@@ -113,14 +118,15 @@ while True:
             voltBall.pos=vector(voltballarray[point].pos)
         if dataPacket == 'H':
             humidval = float(arduinoData.readline())
-            hpos = int(60*(humidval/100))
+            hpos = int(61*(humidval/100))
             humidarrow.axis=humidballarray[hpos].pos
             humidlab.text=str(humidval)+ '%'
             #humidlab.text=str(hpos)
+            x=0
             while x < humidballscount:
-                if x < hpos:
+                if x <= hpos:
                     humidballarray[x].color=color.green
-                else:
+                if x > hpos :
                     humidballarray[x].color=color.magenta
                 x=x+1
     else:
